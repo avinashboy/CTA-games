@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/js/all.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <title>CTA-game</title>
+  <style>
+    body{
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 400;
+    }
+    footer{
+    background-color: #151515;
+    height: 100px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+}
+
+footer h5 a{
+    color: #f1f1f1;
+    font-family: 'Playfair Display SC',sans-serif;
+}
+
+.text-muted{
+    color: rgba(255, 255, 255, .7) !important;
+}
+
+.foot_box{
+  margin: 25px 10px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.icon .content{
+  margin-top: 10px;
+}
+@media (max-width: 500px){
+.hide_me{
+  display: none;
+}
+.foot_box{
+  margin: 30px 10px;
+  padding: 5px;
+}
+}
+
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+    <div class="container">
+      <a class="navbar-brand" href="#">CTA-game</a>
+    </div>
+  </nav>
+  <div class="container">
+    <button id="btn">create room</button>
+    <select class="browser-default custom-select" id="select">
+      <option value="2">Two</option>
+      <option value="3">Three</option>
+      <option value="4">Four</option>
+    </select>
+    <input class="hide_me" type="text" id="demo">
+    <button class="btn hide_me" data-clipboard-action="copy" data-clipboard-target="#demo"><i
+        class="fas fa-copy"></i></button>
+  </div>
+    
+  
+  <footer class="footer">
+    <div class="foot_box">
+      <div class="icon text-muted">
+        <i class="far fa-copyright"></i>.Copyright <span id="year"></span>. All rights reserved
+      </div>
+      <div class="icon text-muted">
+        <a href="https://forms.gle/U8vBmWHDaDb9Y9859"><i class="fas fa-paper-plane"></i></a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    const url = "https://hot-games.herokuapp.com", socket = io.connect(url), demo = document.getElementById("demo"), btn = document.getElementById("btn"); btn.addEventListener("click", () => { let e = { option: document.getElementById("select").value }; $.ajax({ type: "POST", url: `${url}/create`, data: e }), $("#btn").fadeOut(), $("#select").fadeOut(), $(".hide_me").fadeIn() }), socket.on("new-room", e => { demo.value = `${url}/${e}` }); var clipboard = new ClipboardJS(".btn"); clipboard.on("success", function (e) { e.clearSelection() }), clipboard.on("error", function (e) { });
+
+    $("#year").text((new Date).getFullYear());
+  </script>
+</body>
+</html>

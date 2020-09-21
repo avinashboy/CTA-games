@@ -1,0 +1,27 @@
+{
+  "name": "binary",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "one": "nodemon clus.js",
+    "two": "nodemon serve.js",
+    "three": "nodemon game.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cluster": "^0.7.7",
+    "cors": "^2.8.5",
+    "ejs": "^3.1.3",
+    "express": "^4.17.1",
+    "helmet": "^3.22.0",
+    "https": "^1.0.0",
+    "nodemon": "^2.0.4",
+    "socket.io": "^2.3.0",
+    "socket.io-client": "^2.3.0",
+    "socket.io-emitter": "^3.1.1",
+    "socket.io-redis": "^5.2.0",
+    "socket.io-stream": "^0.9.1"
+  }
+}

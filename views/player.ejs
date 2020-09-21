@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&display=swap" rel="stylesheet">
+  <title>Player</title>
+  <style>
+    body {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+    }
+
+    .list {
+      display: flex;
+    }
+
+    .inside {
+      margin: 10px;
+    }
+
+    #one,
+    #two,
+    #three,
+    #four {
+      text-align: center;
+      font-size: 24px;
+    }
+
+    #wwcd {
+      font-size: 48px;
+      text-align: center;
+    }
+
+    #demo {
+      position: absolute;
+      top: 1%;
+      right: 1%;
+      font-size: 24px;
+    }
+
+    #divBoard {
+      text-align: center;
+      display: none;
+    }
+
+    .btnn {
+      width: 150px;
+      height: 150px;
+    }
+
+    @media (max-width: 500px) {
+      .btnn {
+        width: 100px;
+        height: 100px;
+      }
+
+      #wwcd {
+        font-size: 28px;
+      }
+
+      #one,
+      #two,
+      #three,
+      #four {
+        font-size: 18px;
+      }
+    }
+  </style>
+  <script>
+    const gameRoom = "<%= roomName  %>"
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+
+<body>
+  Capture the area
+  <span id="demo"></span>
+  <div id="list" class="list"></div>
+  <div id='divBoard'></div>
+  <span id="wwcd"></span>
+  <br>
+  <span id="one"></span>
+  <br>
+  <span id="two"></span>
+  <br>
+  <span id="three"></span>
+  <br>
+  <span id="four"></span>
+  <h1 id="lead">Wait for player</h1>
+  <script src="./aa.js"></script>
+  <script src="./check.js"></script>
+</body>
+
+</html>
