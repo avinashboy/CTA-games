@@ -14,4 +14,4 @@ Here is the link to download zip 👉
 <a href='https://github.com/avinashboy/CTA-games'>HERE</a>
 - Open the folder in VS Code
 - RUN <code>npm install</code> , this command pulls out all the require node modules
-- RUN <code>npm start</code>, this command will start your file in localhost
+- RUN <code>npm start</code>, this command will start your file in localhost <a href="http://localhost:2233">http://localhost:2233</a>
