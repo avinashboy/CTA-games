@@ -1,6 +1,6 @@
 # Capture The Area(CTA) Game
 
-## <a href="https://hot-games.herokuapp.com/">LIVE DEMO</a>
+<!-- ## <a href="https://hot-games.herokuapp.com/">LIVE DEMO</a> -->
 
 
 ![CTA](cta-game.png?raw=true "CTA")
