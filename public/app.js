@@ -1,4 +1,5 @@
-const socket = io.connect("http://localhost:2233")
+// Use window.location to connect to the current server (works in dev and production)
+const socket = io.connect(window.location.origin)
 const div = document.getElementById('list')
 const divBoard = document.getElementById("divBoard")
 const demo = document.getElementById('demo')
@@ -16,15 +17,28 @@ speech.pitch = 1;
 
 let keys = null, timer = null, name = null, playerColor = null, getnumber = null
 let aa = 0, bb = 0, cc = 0, dd = 0, ballno = 0, no_of_user = 0
-let name_arr = [], show_list = [] 
+let name_arr = [], show_list = []
+let lastClickTime = 0
+const CLICK_DEBOUNCE = 100 // 100ms debounce
+
+// Sanitize user input to prevent XSS
+function sanitizeInput(input) {
+  if (!input) return ''
+  const div = document.createElement('div')
+  div.textContent = input
+  return div.innerHTML
+} 
 
   if (!name) {
     name = prompt("What is your name?")
   }
   // socket connection
-  if (name.length == 0) {
+  while (!name || name.trim().length == 0) {
     name = prompt("What is your name?")
   }
+  // Sanitize and limit name length
+  name = sanitizeInput(name.trim().substring(0, 30))
+
   socket.emit("user-name", {
     name: name,
     room: gameRoom
@@ -33,11 +47,14 @@ let name_arr = [], show_list = []
   socket.on('update', data => {
     if (!data.state) return;
     for (const b of Object.keys(data.state)) {
-      const color = data.state[b].color;
+      const color = sanitizeInput(data.state[b].color);
       const ballObject = document.getElementById(b);
-      ballObject.innerText = data.state[b].name
-      ballObject.value = data.state[b].name
-      ballObject.style.backgroundColor = color
+      if (ballObject) {
+        const playerName = sanitizeInput(data.state[b].name)
+        ballObject.textContent = playerName
+        ballObject.value = playerName
+        ballObject.style.backgroundColor = color
+      }
     }
   })
 
@@ -54,16 +71,18 @@ let name_arr = [], show_list = []
       const newdiv = document.createElement("div");
       newdiv.style.width = "100px";
       newdiv.setAttribute("class", "inside")
-      newdiv.style.color = c.color
-      newdiv.textContent = c.clientId
-      name_arr.push(c.clientId)
+      const sanitizedColor = sanitizeInput(c.color)
+      const sanitizedName = sanitizeInput(c.clientId)
+      newdiv.style.color = sanitizedColor
+      newdiv.textContent = sanitizedName
+      name_arr.push(sanitizedName)
       if (name_arr.length === parseInt(no_of_user)) {
         $('#lead').fadeOut()
         divBoard.style.display = "block"
         start_timer(ballno)
       }
       div.appendChild(newdiv)
-      if (c.clientId === name) playerColor = c.color
+      if (sanitizedName === name) playerColor = sanitizedColor
     })
     // board
     while (divBoard.firstChild)
@@ -72,10 +91,14 @@ let name_arr = [], show_list = []
     for (let i = 0; i < data.balls; i++) {
       const b = document.createElement("button");
       b.id = keys + i + getnumber
-      // b.tags = keys + i + getnumber
       b.textContent = i + 1
       b.setAttribute("class", "btnn")
       b.addEventListener("click", e => {
+        // Debounce clicks
+        const now = Date.now()
+        if (now - lastClickTime < CLICK_DEBOUNCE) return
+        lastClickTime = now
+
         b.style.background = playerColor
         const payLoad = {
           "clientId": name,
@@ -104,88 +127,64 @@ let name_arr = [], show_list = []
   }
 
   function show_win(n) {
+    // Count scores for each player
+    const scores = [0, 0, 0, 0]
+
     for (let j = 0; j < n; j++) {
-      let ba = document.getElementById(keys + j + getnumber).value
-      if (ba == "") {
+      const ballElement = document.getElementById(keys + j + getnumber)
+      if (ballElement && ballElement.value) {
+        const value = ballElement.value
+        show_list.push(value)
 
-      } else {
-        show_list.push(ba)
+        // Find which player owns this ball
+        const playerIndex = name_arr.indexOf(value)
+        if (playerIndex !== -1 && playerIndex < 4) {
+          scores[playerIndex]++
+        }
       }
     }
-    show_list.forEach(show_win)
 
-    function show_win(value) {
-      if (value === name_arr[0]) {
-        aa += 1
-      }
-      if (value === name_arr[1]) {
-        bb += 1
-      }
-      if (value === name_arr[2]) {
-        cc += 1
-      }
-      if (value === name_arr[3]) {
-        dd += 1
-      }
+    // Update score variables for display
+    aa = scores[0]
+    bb = scores[1]
+    cc = scores[2]
+    dd = scores[3]
 
-    }
     socket.emit("clear", { room: gameRoom, name: name })
 
-    if (aa > bb && aa > cc && aa > dd) {
-      wwcd.innerText = `Winner winner chicken dinner ${name_arr[0]}`
-      to_speak(`Winner winner chicken dinner ${name_arr[0]}`, parseInt(no_of_user))
+    // Find winner using array methods (more efficient and scalable)
+    const maxScore = Math.max(...scores.slice(0, parseInt(no_of_user)))
+    const winners = []
+
+    for (let i = 0; i < parseInt(no_of_user); i++) {
+      if (scores[i] === maxScore) {
+        winners.push(i)
+      }
     }
 
-    if (bb > aa && bb > cc && bb > dd) {
-      wwcd.innerText = `Winner winner chicken dinner ${name_arr[1]}`
-      to_speak(`Winner winner chicken dinner ${name_arr[1]}`, parseInt(no_of_user))
+    // Check for draw
+    if (winners.length > 1) {
+      wwcd.textContent = 'Draw match'
+      to_speak('Draw match', 0)
+    } else {
+      const winnerName = sanitizeInput(name_arr[winners[0]])
+      wwcd.textContent = `Winner winner chicken dinner ${winnerName}`
+      to_speak(`Winner winner chicken dinner ${winnerName}`, parseInt(no_of_user))
     }
-
-    if (cc > aa && cc > bb && cc > dd) {
-      wwcd.innerText = `Winner winner chicken dinner ${name_arr[2]}`
-      to_speak(`Winner winner chicken dinner ${name_arr[2]}`, parseInt(no_of_user))
-    }
-
-    if (dd > aa && dd > bb && dd > cc) {
-      wwcd.innerText = `Winner winner chicken dinner ${name_arr[3]}`
-      to_speak(`Winner winner chicken dinner ${name_arr[3]}`, parseInt(no_of_user))
-    }
-
-    // for draw game
-    if (aa == bb && parseInt(no_of_user) == 2) {
-      wwcd.innerText = `Draw match`
-      to_speak(`Draw match`, 0)
-    }
-    if (aa == bb && bb == cc && aa == cc && parseInt(no_of_user) == 3) {
-      wwcd.innerText = `Draw match`
-      to_speak(`Draw match`, 0)
-    }
-    if (aa == bb && bb == cc && cc == dd && aa == cc && aa == dd && bb == dd && parseInt(no_of_user) == 4) {
-      wwcd.innerText = `Draw match`
-      to_speak(`Draw match`, 0)
-    }
-
   }
 
   function show_result(n) {
     if (n == 0) return
 
-    if (n == 2) {
-      two.innerText = `${name_arr[1]} score is ${bb}`
-      one.innerText = `${name_arr[0]} score is ${aa}`
-    }
+    // Sanitize names when displaying scores
+    const elements = [one, two, three, four]
+    const scores = [aa, bb, cc, dd]
 
-    if (n == 3) {
-      two.innerText = `${name_arr[1]} score is ${bb}`
-      one.innerText = `${name_arr[0]} score is ${aa}`
-      three.innerText = `${name_arr[2]} score is ${cc}`
-    }
-
-    if (n == 4) {
-      two.innerText = `${name_arr[1]} score is ${bb}`
-      one.innerText = `${name_arr[0]} score is ${aa}`
-      three.innerText = `${name_arr[2]} score is ${cc}`
-      four.innerText = `${name_arr[3]} score is ${dd}`
+    for (let i = 0; i < n && i < 4; i++) {
+      if (name_arr[i] && elements[i]) {
+        const sanitizedName = sanitizeInput(name_arr[i])
+        elements[i].textContent = `${sanitizedName} score is ${scores[i]}`
+      }
     }
   }
 
