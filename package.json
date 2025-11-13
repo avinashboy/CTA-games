@@ -1,9 +1,11 @@
 {
-  "name": "binary",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "cta-games",
+  "version": "2.0.0",
+  "description": "Capture The Area - A real-time multiplayer competitive game built with Node.js and Socket.IO",
+  "main": "game.js",
   "scripts": {
+    "start": "node game.js",
+    "dev": "nodemon game.js",
     "one": "nodemon clus.js",
     "two": "nodemon serve.js",
     "three": "nodemon game.js"
