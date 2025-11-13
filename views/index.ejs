@@ -85,7 +85,48 @@ footer h5 a{
     </div>
   </footer>
   <script>
-    const url = "https://hot-games.herokuapp.com", socket = io.connect(url), demo = document.getElementById("demo"), btn = document.getElementById("btn"); btn.addEventListener("click", () => { let e = { option: document.getElementById("select").value }; $.ajax({ type: "POST", url: `${url}/create`, data: e }), $("#btn").fadeOut(), $("#select").fadeOut(), $(".hide_me").fadeIn() }), socket.on("new-room", e => { demo.value = `${url}/${e}` }); var clipboard = new ClipboardJS(".btn"); clipboard.on("success", function (e) { e.clearSelection() }), clipboard.on("error", function (e) { });
+    // Use current server URL instead of hardcoded URL
+    const url = window.location.origin;
+    const socket = io.connect(url);
+    const demo = document.getElementById("demo");
+    const btn = document.getElementById("btn");
+
+    btn.addEventListener("click", () => {
+      const option = document.getElementById("select").value;
+      // Validate option
+      if (!['2', '3', '4'].includes(option)) {
+        alert('Invalid room size');
+        return;
+      }
+
+      $.ajax({
+        type: "POST",
+        url: `${url}/create`,
+        data: { option: option },
+        error: function(xhr, status, error) {
+          console.error('Error creating room:', error);
+          alert('Failed to create room. Please try again.');
+        }
+      });
+
+      $("#btn").fadeOut();
+      $("#select").fadeOut();
+      $(".hide_me").fadeIn();
+    });
+
+    socket.on("new-room", (roomId) => {
+      // Sanitize room ID before displaying
+      const sanitizedRoomId = encodeURIComponent(roomId);
+      demo.value = `${url}/${sanitizedRoomId}`;
+    });
+
+    var clipboard = new ClipboardJS(".btn");
+    clipboard.on("success", function (e) {
+      e.clearSelection();
+    });
+    clipboard.on("error", function (e) {
+      console.error('Copy failed:', e);
+    });
 
     $("#year").text((new Date).getFullYear());
   </script>
